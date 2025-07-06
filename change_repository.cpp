@@ -10,7 +10,6 @@ Description: implementation of ChangeRepository class
 // #include <cmath>
 #include <chrono>
 
-
 // constructor 
 // TODO for initial test
 // ChangeRepository::ChangeRepository(double initial)
@@ -25,111 +24,80 @@ ChangeRepository::ChangeRepository() {
         {1000,  4},   // $10
         {500,   2},   // $5
         {100,   6},   // $1
-        {25,    6},   // 25¢
-        {10,   10},   // 10¢
-        {5,    10},   // 5¢
-        {1,   100}    // 1¢
+        {25,    6},   // 25 cent
+        {10,   10},   // 10 cent
+        {5,    10},   // 5 cent
+        {1,   100}    // 1 cent
     };
     denominations = originalQuantities; // start with full stock
     lastReplenishTime = std::chrono::system_clock::now() - std::chrono::hours(24); // get startup timestamp
 }
 
 // TODO
+// records only the part of the inserted cash that was needed to pay the bill
 void ChangeRepository::acceptInsertedCash(const std::map<int, int>& inserted, int amountDueCents) {
-    int remaining = amountDueCents;
+    int remaining = amountDueCents;                // start remaining with the balance
 
-    for (auto it = inserted.rbegin(); it != inserted.rend(); ++it) { // start from highest denom
-        int denom = it->first;
-        int qty = it->second;
-        int used = 0;
+    for (auto it = inserted.rbegin(); it != inserted.rend(); ++it) { // iterate from highest denom to lowest
+        int denom = it->first;                     // get denomination value in cents
+        int qty = it->second;                      // get quantity of the denomination
+        int used = 0;                              // stores how many of current demonination to keep
 
+        // use as many of active denomination as needed to cover remaining balance
         while (qty > 0 && remaining >= denom) {
-            remaining -= denom;
-            qty--;
-            used++;
+            remaining -= denom;                    // subtract denom value from remaining balance 
+            qty--;                                 // decrement denom available quantity
+            used++;                                // increment denom quantity used
         }
 
-        denominations[denom] += used;
+        denominations[denom] += used;              // add the accepted quantity to change repo 
     }
 
-    // if remaining > 0, store underpayment silently (optional warning)
+    // if remaining > 0, store underpayment silently
 }
 
-
-// TODO
 bool ChangeRepository::canDispense(int amountCents) const {
-    int remaining = amountCents;
-    auto copy = denominations;
+    int remaining = amountCents;                  // start with change amount needed
+    auto copy = denominations;                    // make copy so not to moidfy real denom stock
 
+    // for this check dispense from largest to smallest denom
     for (auto it = copy.rbegin(); it != copy.rend(); ++it) {
         while (remaining >= it->first && it->second > 0) {
-            remaining -= it->first;
-            it->second--;
+            remaining -= it->first;               // use active denom to cover part of remaining change balance
+            it->second--;                         // decrement denom available quantity 
         }
     }
-    return remaining == 0;
+    return remaining == 0;                        // return true if exact change can be made
 }
-
-// bool ChangeRepository::dispenseChange(int amountCents) { // determines if change amount can be dispensed and if so dispenses change
-//     int remaining = amountCents;
-//     for (auto i = denominations.rbegin(); i != denominations.rend(); ++i) { // iterate over $ denominations in reverse order (largest bills first)
-//         while (remaining >= i->first && i->second > 0) {                    // check if current denomination is >= to remaining change balance
-//             remaining -= i->first;                                          // subtract value of denomination from remaining change balance
-//             i->second--;                                                    // remove quanity 1 of the current denomintion
-//         }
-//     }
-//     return remaining == 0;
-// }
-
-// TODO
-// bool ChangeRepository::dispenseChange(int amountCents) {
-//     int remaining = amountCents;
-//     auto temp = denominations; // simulate first
-
-//     for (auto i = temp.rbegin(); i != temp.rend(); ++i) {
-//         while (remaining >= i->first && i->second > 0) {
-//             remaining -= i->first;
-//             i->second--;
-//         }
-//     }
-
-//     if (remaining == 0) {
-//         denominations = temp; // commit only if successful
-//         return true;
-//     } else {
-//         return false;
-//     }
-// }
 
 // Update signature to return map of dispensed denominations
 std::map<int, int> ChangeRepository::dispenseChange(int amountCents) {
-    int remaining = amountCents;
-    std::map<int, int> dispensed;
+    int remaining = amountCents;  
+    std::map<int, int> dispensed;                 // track which denom/qtys we actually dispensed
 
+    // iterate over denominations from largest to smallest  
     for (auto i = denominations.rbegin(); i != denominations.rend(); ++i) {
-        int denom = i->first;
-        int& qty = i->second;
-
+        int denom = i->first;                     // get denomination value in cents
+        int& qty = i->second;                     // get quantity of the denomination
+                 
+        // Use as many of active denomination as possible without over-dispensing
         while (remaining >= denom && qty > 0) {
-            remaining -= denom;
-            qty--;
-            dispensed[denom]++;
+            remaining -= denom;                   // subtract denom value from remaining balance                  
+            qty--;                                // decrement denom available quantity
+            dispensed[denom]++;                   // increment 1 unit of active denom dispensed 
         }
     }
 
     if (remaining == 0) {
-        return dispensed; // success
+        return dispensed;                         // success, all required change was dispensed 
     } else {
-        // rollback (restore denominations)
+        // failure, rollback (restore denominations)
         for (const auto& [d, count] : dispensed) {
-            denominations[d] += count;
+            denominations[d] += count; 
         }
-        return {}; // failure: empty map
+        return {};                                // return empty map to show failure
     }
 }
-
-
-
 
 void ChangeRepository::addCash(int denomination, int count) {
     denominations[denomination] += count;
@@ -139,7 +107,7 @@ int ChangeRepository::getTotalBalance() const {
     int total = 0;
     for (const auto& [denom, qty] : denominations) {
         total += denom * qty;
-    }
+   }
     return total;
 }
 
@@ -158,13 +126,13 @@ bool ChangeRepository::replenish(UserDisplay& display) {
     if (!canReplenish()) return false;
 
     std::map<int, int> replenished;
-
-    for (auto& [denom, currentQty] : denominations) {
-        int targetQty = originalQuantities[denom];
-        if (currentQty < targetQty) {
-            int added = targetQty - currentQty;
-            currentQty = targetQty;
-            replenished[denom] = added;
+           // auto$ reference allows to modify denominations map directly 
+    for (auto& [denom, currentQty] : denominations) { // iterate over current change repo map
+        int targetQty = originalQuantities[denom];    // default denom quantities 
+        if (currentQty < targetQty) {                 // check if current quantity is below baseline quantity 
+            int added = targetQty - currentQty;       // determine how many units needed to restock 
+            currentQty = targetQty;                   // sets stock back to default value 
+            replenished[denom] = added;               // save number of units added to restock
         }
     }
 
@@ -174,7 +142,7 @@ bool ChangeRepository::replenish(UserDisplay& display) {
     }
 
     display.showReplenishmentReport(replenished);
-    lastReplenishTime = std::chrono::system_clock::now();
+    lastReplenishTime = std::chrono::system_clock::now(); // save when stock was replenished 
     return true;
 }
 

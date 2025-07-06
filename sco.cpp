@@ -141,72 +141,72 @@ void SCO::processCommand(const std::string& input) {
 
             if (method == "cash") {                       // pay with cash
                 // double cash;
-                std::map<int, int> inserted;
+                std::map<int, int> inserted;              // stores cash denominations & qty entered by user
                 std::string line;
-                double insertedTotal = 0.0;
+                double insertedTotal = 0.0;               // total cash inserted 
 
                 display.showMessage("Enter denomination and quantity (e.g., 0.25 4 for four quarters), or type 'done' when finished:");
 
-                while (true) {
+                while (true) {                            // loop until user enters "done"
                     display.cashprompt();
-                    std::getline(std::cin, line);   
-                    std::istringstream input(line);
+                    std::getline(std::cin, line);         // get user input
+                    std::istringstream input(line);       // put user input into a string stream for parsing
 
                     std::string word;
-                    input >> word;
+                    input >> word;                        // extract first word from input string
 
                     if (word == "done") {
                         if (insertedTotal >= total) {
-                            break;
+                            break;                        // exit loop, sufficient funds to complete payment 
                         } else {
                             double remaining = total - insertedTotal;
                             display.showMessage("Still owed: $" + formatAmount(remaining) + ". Please insert more cash.");
-                            continue;
+                            continue;                     // stay in loop until sufficient funds are inserted 
                         }
                     }
                       
                     try {
-                        double denomDollars = std::stod(word);                   // e.g., 0.25, 1, 20
-                        int denom = dollarsToCents(denomDollars);               // Convert to cents
+                        double denomDollars = std::stod(word);                  // convert string to decimal (e.g., "0.25" --> 0.25)
+                        int denom = dollarsToCents(denomDollars);               // Convert dollars to cents (integers) (e.g., 0.25 --> 25)
                         int qty;
-                        input >> qty;   
+                        input >> qty;                                           // extract quantity from input string
 
-                        if (qty <= 0 || denom <= 0) throw std::invalid_argument("Invalid input");
+                        if (qty <= 0 || denom <= 0) throw std::invalid_argument("Invalid input"); // check if inputs are valid
 
-                        inserted[denom] += qty;
-                        insertedTotal += (denom / 100.0) * qty;
+                        inserted[denom] += qty;                                 // accumulate inserted qty
+                        insertedTotal += (denom / 100.0) * qty;                 // update total inserted 
 
                         std::ostringstream oss;
                         oss << "Added $" << std::fixed << std::setprecision(2)
                             << (denom / 100.0) * qty
                             << " (total so far: $" << insertedTotal << ")";
-                        display.showMessage(oss.str());
+                        display.showMessage(oss.str());                         // show how much was added to the new total 
 
                         double remaining = total - insertedTotal;   
                         if (remaining > 0) {  
-                            display.showMessage("Still owed: $" + formatAmount(remaining));
+                            display.showMessage("Still owed: $" + formatAmount(remaining)); // show remaining balanced owed
                         }
 
                     } catch (...) {
-                        display.showMessage("Invalid input. Try again.");
+                        display.showMessage("Invalid input. Try again.");       // for any conversion or logic errors  
                     }
                 }
 
                 double change = 0.0;
-                if (Payment::processCash(total, insertedTotal, change)) {
-                    if (!changeRepo.canDispense(change)) {
+                if (Payment::processCash(total, insertedTotal, change)) {       // check if cash covers total, generate change
+                    if (!changeRepo.canDispense(change)) {                      // check to see if change repo has sufficient change
                         display.showMessage("Insufficient change in machine. Can't complete transaction!");
                         return;
                     }
 
                     // Attempt to dispense change (before updating cash)
-                    auto dispensed = changeRepo.dispenseChange(dollarsToCents(change));
+                    auto dispensed = changeRepo.dispenseChange(dollarsToCents(change)); // dispense change
                     if (dispensed.empty()) {
                         display.showMessage("Unable to dispense exact change. Transaction cancelled.");
                         return;
                     }
 
-                    // Accept only the cash that is actually retained (total amount due)
+                    // Save only the cash that is actually retained (total amount due)
                     changeRepo.acceptInsertedCash(inserted, dollarsToCents(total));
 
                     // Check for low balance after dispensing change
