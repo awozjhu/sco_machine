@@ -41,8 +41,19 @@ std::string CartItem::getDescription() const {
 Cart::Cart() : counter(1) {}
 
 // member functions
+void CartItem::setItemNumber(int num) {
+    itemNumber = num;
+}
+
+void Cart::renumberItems() {
+    int newNumber = 1;
+    for (auto& item : items)
+        item.setItemNumber(newNumber++);
+}
+
 void Cart::addItem(const Product& p, int quantity) {
-    items.emplace_back(p, quantity, counter++); // constructs a new CartItem object and places at the end of the vector
+    items.emplace_back(p, quantity, 0); // temporary item number
+    renumberItems(); // ensure sequential numbering
 }
 
 void Cart::removeItem(int itemNumber) {
@@ -54,6 +65,7 @@ void Cart::removeItem(int itemNumber) {
         });
 
     items.erase(updtVec, items.end()); // remove all vector elements after updtVec
+    renumberItems(); // ensure sequential numbering
 }
 
 void Cart::printItems() const {    // const bc method does not modify Cart class

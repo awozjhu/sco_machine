@@ -13,28 +13,32 @@ Class Descriptions:
 #include <iostream>
 
 class CartItem {
-// member variables 
+    // member variables 
     Product product;
     int quantity;
     int itemNumber;
 public:
-// constructor 
+    // constructor 
     CartItem(const Product& p, int q, int num);
-// member fuctions
+
+    // member functions
     void print() const;
     double getTotalPrice() const;
     int getItemNumber() const;
     std::string getDescription() const;
+    void setItemNumber(int num);
 };
 
 class Cart {
-// member variables 
-    std::vector<CartItem> items; // vector(a dynamic array) of CartItems objects
+    // member variables 
+    std::vector<CartItem> items;
     int counter;
 public:
-// constructor 
+    // constructor 
     Cart();
-// member functions
+
+    // member functions
+    void renumberItems(); // Reassigns item numbers to all CartItems
     void addItem(const Product& p, int quantity);
     void removeItem(int itemNumber);
     void printItems() const;
@@ -42,3 +46,4 @@ public:
     double getSubtotal() const;
     bool isEmpty() const;
 };
+

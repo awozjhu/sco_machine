@@ -98,7 +98,7 @@ void SCO::processCommand(const std::string& input) {
     CommandType type = parseCommand(word1);                // parse the input command
 
     if (!inService && type != CommandType::Replenish && type != CommandType::ShowChange) { // don't allow other commands until SCO change repo is replenished
-        display.showMessage("ERORR: SCO is out of service. Please see an attendant.");
+        display.showMessage("ERROR: SCO is out of service. Please see an attendant.");
         return;
     }
 

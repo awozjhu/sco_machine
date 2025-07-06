@@ -1,12 +1,9 @@
 
 --- RECEIPT ---
-T-Bone Steak - $15.98
-Tyson Fresh Chicken Wings - $50
-Glazed Donuts Dozen - $19.96
-Dozen Eggs - $6
+Tyson Fresh Chicken Wings - $10
 -------------------------
-Total: $96.54
-Paid:  $96.54
-Change:$0.00
+Total: $10.50
+Paid:  $60.00
+Change:$49.50
 -------------------------
 Thank you for shopping!
