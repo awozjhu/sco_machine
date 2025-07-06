@@ -23,7 +23,10 @@ class SCO {
     ChangeRepository changeRepo; // instantiate a change repository
     const double taxRate = 0.05; // const bc tax rate can't change during runtime
     bool inService = true;       // indicates if the SCO is operational
-
+// private methods (helper functions)
+    void generateReceipt(double total, double paid, double change); // generate receipt and write to file
+    void goodbyeReset();
+    void checkoutMessages(double subtotal, double tax, double total);
 
 public:
 // constructor 

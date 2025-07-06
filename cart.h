@@ -38,7 +38,7 @@ public:
     void addItem(const Product& p, int quantity);
     void removeItem(int itemNumber);
     void printItems() const;
-    void printReceipt(std::ostream& os) const;
+    void printReceipt(std::ostream& os, double total = 0.0, double paid = 0.0, double change = 0.0) const;
     double getSubtotal() const;
     bool isEmpty() const;
 };

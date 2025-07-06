@@ -9,6 +9,7 @@ Class Descriptions:
 #pragma once
 #include "product.h"
 #include <string>
+#include <map>
 
 class UserDisplay {
 public:
@@ -18,6 +19,7 @@ public:
     void showWelcome();
     void showHelp();
     void prompt();
+    void cashprompt();
     void showScanned(const Product& p, int qty);
     void showSubtotal(double subtotal);
     void showTax(double tax);
@@ -25,4 +27,7 @@ public:
     void showChange(double change);
     void showApprovalCode(const std::string& code);
     void showMessage(const std::string& msg);
+    void showReplenishmentReport(const std::map<int, int>& replenished);
+    void showCardProcessingAnimation();
+    void showChangeBreakdown(const std::map<int, int>& dispensed);
 };

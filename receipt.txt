@@ -1,0 +1,9 @@
+
+--- RECEIPT ---
+T-Bone Steak - $7.99
+-------------------------
+Total: $8.39
+Paid:  $200.00
+Change:$191.61
+-------------------------
+Thank you for shopping!

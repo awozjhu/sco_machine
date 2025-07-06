@@ -62,11 +62,20 @@ void Cart::printItems() const {    // const bc method does not modify Cart class
         item.print();
 }
 
-void Cart::printReceipt(std::ostream& os) const { // pass an output stream as a parameter, "const" can't modify Cart object
+// generates contents written to receipt, note: pass an output stream as a parameter, "const" can't modify Cart object 
+void Cart::printReceipt(std::ostream& os, double total, double paid, double change) const {   
     os << "\n--- RECEIPT ---\n";
     // iterate over each CartItem in member variable (vector) items
     for (const auto& item : items)                // doesn't modify each item, reference to avoid copying 
         os << item.getDescription() << " - $" << item.getTotalPrice() << "\n";
+    if (total > 0.0) {
+        os << "-------------------------\n";
+        os << "Total: $" << std::fixed << std::setprecision(2) << total << "\n";   
+        os << "Paid:  $" << std::fixed << std::setprecision(2) << paid << "\n";
+        os << "Change:$" << std::fixed << std::setprecision(2) << change << "\n";
+        os << "-------------------------\n";
+        os << "Thank you for shopping!\n";
+    }
 }
 
 double Cart::getSubtotal() const {
