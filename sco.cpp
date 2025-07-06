@@ -171,7 +171,21 @@ void SCO::processCommand(const std::string& input) {
                         int qty;
                         input >> qty;                                           // extract quantity from input string
 
-                        if (qty <= 0 || denom <= 0) throw std::invalid_argument("Invalid input"); // check if inputs are valid
+                        // check if cash input is valid
+                        int validDenoms[] = {1, 5, 10, 25, 100, 500, 1000, 2000, 5000, 10000}; // TODO try to implement with std::set
+                        int numDenoms = sizeof(validDenoms) / sizeof(validDenoms[0]);
+
+                        bool isValid = false;
+                        for (int i = 0; i < numDenoms; ++i) {
+                            if (denom == validDenoms[i]) {
+                                isValid = true;
+                                break;
+                            }
+                        }
+
+                        if (!isValid || qty <= 0) {                             // check if invalid denom or quantity input
+                            throw std::invalid_argument("Invalid denomination or quantity");
+                        }
 
                         inserted[denom] += qty;                                 // accumulate inserted qty
                         insertedTotal += (denom / 100.0) * qty;                 // update total inserted 
