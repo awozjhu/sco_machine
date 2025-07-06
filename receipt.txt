@@ -1,9 +1,12 @@
 
 --- RECEIPT ---
-Tyson Fresh Chicken Wings - $10
--------------------------
-Total: $10.50
-Paid:  $60.00
-Change:$49.50
--------------------------
+Tyson Fresh Chicken Wings x1 @ $10.00 = $10.00
+-------------------
+Subtotal: $10.00
+Tax:      $0.50
+Total:    $10.50
+Paid:     $40.00
+Change:   $29.50
+Payment Method: Cash
+
 Thank you for shopping!

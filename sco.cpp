@@ -79,10 +79,11 @@ void SCO::checkoutMessages(double subtotal, double tax, double total) {
 }
 
 // generate receipt member function: writes receipt to text file
-void SCO::generateReceipt(double total, double paid, double change) {
+void SCO::generateReceipt(double subtotal, double tax, double total, double paid, double change,
+                          const std::string& method, const std::string& approvalCode) {
     std::ofstream receipt("receipt.txt");
-    cart.printReceipt(receipt, total, paid, change);
-}  
+    cart.printReceipt(receipt, subtotal, tax, total, paid, change, method, approvalCode);
+}
 
 // processCommand member function definition: handles each valid input string
 void SCO::processCommand(const std::string& input) {
@@ -227,7 +228,9 @@ void SCO::processCommand(const std::string& input) {
                     if (changeRepo.isLow()) {
                         inService = false;
                         display.showMessage("\nERROR: SCO is now out of service: change balance below $50 !!!!");
-                        std::this_thread::sleep_for(std::chrono::seconds(3)); // delay for 3s
+                        display.showMessage("Notifying Control Center...");
+                        notifyControlCenter();
+                        std::this_thread::sleep_for(std::chrono::seconds(4)); // delay for 4s
                     }
 
                     //// checkout messages
@@ -235,7 +238,7 @@ void SCO::processCommand(const std::string& input) {
                     display.showChange(change);
                     display.showChangeBreakdown(dispensed);
                     // print receipt 
-                    generateReceipt(total, insertedTotal, change); // generate receipt 
+                    generateReceipt(subtotal, tax, total, insertedTotal, change, "Cash"); // generate receipt 
                     cart = Cart();         // empty cart after successful payment
                     // goodbye message and reset sco
                     goodbyeReset();
@@ -253,7 +256,7 @@ void SCO::processCommand(const std::string& input) {
                 display.showApprovalCode(code);
                 std::this_thread::sleep_for(std::chrono::seconds(3));
                 // print receipt 
-                generateReceipt(total, total, 0.0); // generate receipt 
+                generateReceipt(subtotal, tax, total, total, 0.0, "Card", code); // generate receipt 
                 cart = Cart();         // empty cart after successful payment
                 // goodbye message and reset sco
                 goodbyeReset(); 
@@ -330,8 +333,10 @@ void SCO::processCommand(const std::string& input) {
     }    
 }
 
-// void SCO::notifyControlCenter() {
-//     std::ofstream log("sco_alert.log", std::ios::app);
-//     log << "SCO out of service at " << __TIME__ << ": low change balance.\n";
-// }
-
+// notify control center that SCO is out of service 
+void SCO::notifyControlCenter() {
+    std::ofstream log("sco_alert.log", std::ios::app); // Append mode
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    log << "[ALERT] SCO went out of service due to low change balance at "
+        << std::ctime(&now); // adds a human-readable timestamp
+}

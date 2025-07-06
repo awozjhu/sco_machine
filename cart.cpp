@@ -33,7 +33,12 @@ int CartItem::getItemNumber() const {
 }
 
 std::string CartItem::getDescription() const {
-    return product.getDescription(); 
+    std::ostringstream oss;
+    oss << product.getDescription()                                        
+        << " x" << quantity      
+        << " @ $" << std::fixed << std::setprecision(2) << product.getPrice()
+        << " = $" << std::fixed << std::setprecision(2) << getTotalPrice();
+    return oss.str();
 }
 
 ////////// Cart Class 
@@ -74,21 +79,29 @@ void Cart::printItems() const {    // const bc method does not modify Cart class
         item.print();
 }
 
-// generates contents written to receipt, note: pass an output stream as a parameter, "const" can't modify Cart object 
-void Cart::printReceipt(std::ostream& os, double total, double paid, double change) const {   
+// generates contents written to receipt, note: pass an output stream as a parameter, "const" can't modify Cart object
+void Cart::printReceipt(std::ostream& os, double subtotal, double tax, double total,
+                        double paid, double change,
+                        const std::string& method, const std::string& approvalCode) const {
     os << "\n--- RECEIPT ---\n";
     // iterate over each CartItem in member variable (vector) items
-    for (const auto& item : items)                // doesn't modify each item, reference to avoid copying 
-        os << item.getDescription() << " - $" << item.getTotalPrice() << "\n";
-    if (total > 0.0) {
-        os << "-------------------------\n";
-        os << "Total: $" << std::fixed << std::setprecision(2) << total << "\n";   
-        os << "Paid:  $" << std::fixed << std::setprecision(2) << paid << "\n";
-        os << "Change:$" << std::fixed << std::setprecision(2) << change << "\n";
-        os << "-------------------------\n";
-        os << "Thank you for shopping!\n";
-    }
+    for (const auto& item : items)          // doesn't modify each item, reference to avoid copying
+        os << item.getDescription() << "\n";
+
+    os << "-------------------\n";
+    os << "Subtotal: $" << std::fixed << std::setprecision(2) << subtotal << "\n";
+    os << "Tax:      $" << std::fixed << std::setprecision(2) << tax << "\n";
+    os << "Total:    $" << std::fixed << std::setprecision(2) << total << "\n";
+    os << "Paid:     $" << std::fixed << std::setprecision(2) << paid << "\n";
+    os << "Change:   $" << std::fixed << std::setprecision(2) << change << "\n";
+    if (!method.empty())
+        os << "Payment Method: " << method << "\n";
+    if (!approvalCode.empty())
+        os << "Approval Code:  " << approvalCode << "\n";
+
+    os << "\nThank you for shopping!\n";
 }
+
 
 double Cart::getSubtotal() const {
     double total = 0.0;    

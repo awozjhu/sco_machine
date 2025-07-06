@@ -24,10 +24,12 @@ class SCO {
     const double taxRate = 0.05; // const bc tax rate can't change during runtime
     bool inService = true;       // indicates if the SCO is operational
 // private methods (helper functions)
-    void generateReceipt(double total, double paid, double change); // generate receipt and write to file
+    void generateReceipt(double subtotal, double tax, double total, double paid, double change,
+                        const std::string& method = "", const std::string& approvalCode = "");
+ // generate receipt and write to file
     void goodbyeReset();
     void checkoutMessages(double subtotal, double tax, double total);
-
+    void notifyControlCenter();
 public:
 // constructor 
     SCO(ProductDatabase& pdb, UserDisplay& disp);
